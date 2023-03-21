@@ -6,9 +6,6 @@ This is a PyTorch implementation of a semi-supervised learning framework for bui
 You need to first generate lists of pre- and post-image/label files and place as the structure shown below. Every txt file contains the full absolute path of the files, each file per line. To ensure you can understand what are the files, we give three tif files as examples. The image file is the RGB-band file and label file is the 256-bit image with value from 0 to 255.
 ```
 /root
-    /image_pre_001.tif
-    /image_post_001.tif
-    /label_001.tif
     /train_image_pre.txt
     /train_image_post.txt
     /train_label.txt
