@@ -3,12 +3,9 @@
 This is a PyTorch implementation of a semi-supervised learning framework for building damage assessment. The manuscript can be visited via https://www.mdpi.com/2072-4292/15/2/478.
 
 ## 1. Directory Structure    
-You need to process first and generate lists of pre- and post-image/label files and place as the structure shown below. Every txt file contains the full absolute path of the files, each file per line. To ensure you can understand what are the files, we give three tif files as examples. The image file is the RGB-band file and label file is the 256-bit image with value from 0 to 255.
+You need to first generate lists of pre- and post-image/label files and place as the structure shown below. Every txt file contains the full absolute path of the files, each file per line. To ensure you can understand what are the files, we give three tif files as examples. The image file is the RGB-band file and label file is the 256-bit image with value from 0 to 255.
 ```
 /root
-    /image_pre_001.tif
-    /image_post_001.tif
-    /label_001.tif
     /train_image_pre.txt
     /train_image_post.txt
     /train_label.txt
@@ -37,7 +34,7 @@ conda activate building_damage_assessment
 ```
 
 ### Training
-1. set `root_dir`(which you put the txt file including the full file path) and hyper-parameters configuration in `./configs/config.cfg`.
+1. set `root_dir` and hyper-parameters configuration in `./configs/config.cfg`.
 2. run `python train.py`.
 
 ### Evaludation

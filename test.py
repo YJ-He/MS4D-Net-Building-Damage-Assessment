@@ -59,7 +59,7 @@ def main(config, args):
 if __name__ == '__main__':
     config = MyConfiguration('configs/config.cfg')
 
-    pathCkpt = r'D:\Yongjun\Data\xBD\xBD\tie3\moore-tornado\512\split_rm_blank\70_10_20\70_10_20_5\damage\SSL\0.20\save\Si_FCN_2head_vgg16_bn_diff_PDMT\20230321_084852\checkpoint-best.pth'
+    pathCkpt = r'D:\checkpoint-best.pth'
 
     parser = argparse.ArgumentParser(description="Model Evaluation")
 
