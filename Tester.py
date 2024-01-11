@@ -7,6 +7,7 @@ from tqdm import tqdm
 from utils.util import AverageMeter, ensure_dir, object_based_infer
 import shutil
 from utils.metrics import Evaluator_tensor
+from PIL import Image
 
 class Tester(object):
     def __init__(self,
@@ -88,7 +89,7 @@ class Tester(object):
         self.evaluator = Evaluator_tensor(self.config.nb_classes, self.device)
         self.evaluator_BD = Evaluator_tensor(2, self.device)
 
-    def eval_and_predict_damage_PDMT(self):
+    def eval_and_predict_damage_PSMT(self):
         """
         pixel-based evaluation
         :return:
@@ -304,7 +305,7 @@ class Tester(object):
         output_iou['iou_building'] = iou0[1]
         return output_iou
 
-    def eval_and_predict_damage_PDMT_object(self):
+    def eval_and_predict_damage_PSMT_object(self):
         """
         object-based evaluation
         :return:
@@ -336,6 +337,8 @@ class Tester(object):
                 # vote by object
                 mask_BD, mask_D = object_based_infer(logits['building'], logits['damage'])
                 mask_D = torch.from_numpy(mask_D).to(self.device, non_blocking=True)
+                # save damage map
+                self._save_pred_multiclass(mask_D, filenames)
 
                 target_BD = target.clone().detach()
                 target_BD[target_BD != 0] = 1
@@ -529,6 +532,33 @@ class Tester(object):
         output_iou['iou_building'] = iou0[1]
         return output_iou
 
+    def predict_damage_PSMT_object(self):
+        '''
+        object-based prediction
+        '''
+        self._resume_ckpt_PSMT()
+        self.evaluator.reset()
+        self.evaluator_BD.reset()
+
+        self.model[0].eval()
+        self.model[1].eval()
+
+        with torch.no_grad():
+            for steps, (data, filenames) in tqdm(enumerate(self.test_data_loader, start=1)):
+                data = data.to(self.device, non_blocking=True)
+
+                logits0 = self.model[0](data)
+                logits1 = self.model[1](data)
+                logits = {}
+                logits['damage'] = (logits0['damage'] + logits1['damage']) / 2
+                logits['building'] = (logits0['building'] + logits1['building']) / 2
+
+                # vote by object
+                mask_BD, mask_D = object_based_infer(logits['building'], logits['damage'])
+                mask_D = torch.from_numpy(mask_D).to(self.device, non_blocking=True)
+                # save damage map
+                self._save_pred_multiclass(mask_D, filenames)
+
     def _resume_ckpt_PSMT(self):
         print("     + Loading ckpt path : {} ...".format(self.resume_ckpt_path))
         checkpoint = torch.load(self.resume_ckpt_path)
@@ -539,3 +569,28 @@ class Tester(object):
               "     + Prepare to test ! ! !"
               .format(self.resume_ckpt_path))
 
+    def _save_pred_multiclass(self, multiclass_map, filenames):
+        """
+        save multiclass prediction as tif file
+        """
+        for index, map in enumerate(multiclass_map):
+            map = self._label_mapping(map)
+            map = Image.fromarray(map)
+            filename = filenames[index].split('\\')[-1].split('.')
+            save_filename = filename[0] + '_multiclass.tif'
+            save_path = os.path.join(self.predict_path, save_filename)
+            map.save(save_path, compression='tiff_lzw')
+
+    def _label_mapping(self, in_label):
+        """
+        color mapping
+        """
+        in_label = np.asarray(in_label.cpu(), dtype=np.uint8)
+        colorize = np.zeros([5, 3], 'uint8')
+        colorize[0, :] = [0, 0, 0]
+        colorize[1, :] = [0, 255, 0]
+        colorize[2, :] = [255, 255, 0]
+        colorize[3, :] = [255, 125, 0]
+        colorize[4, :] = [255, 0, 0]
+        ims = colorize[in_label, :].reshape([in_label.shape[0], in_label.shape[1], 3])
+        return ims

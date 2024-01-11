@@ -58,7 +58,7 @@ def for_test(model, config, args, test_data_loader, class_name, begin_time, resu
                             begin_time=begin_time,
                             resume_file=resume_file)
 
-    myTester.eval_and_predict_damage_PDMT()
+    myTester.eval_and_predict_damage_PSMT()
     print(" Evaluation Done ! ")
 
 

@@ -16,7 +16,10 @@ def for_test(model, config, args, test_data_loader, class_name, begin_time, resu
                     class_name=class_name,
                     begin_time=begin_time,
                     resume_file=resume_file)
-    myTester.eval_and_predict_damage_PDMT_object()
+    if args.only_prediction == False:
+        myTester.eval_and_predict_damage_PSMT_object()
+    else:
+        myTester.predict_damage_PSMT_object()
     print(" Evaluation Done ! ")
 
 def main(config, args):
