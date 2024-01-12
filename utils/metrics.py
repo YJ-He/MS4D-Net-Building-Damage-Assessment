@@ -145,9 +145,9 @@ class Evaluator_tensor(object):
 
 
 if __name__ == '__main__':
-    evaluator = Evaluator_tensor(2)
-    a = np.array([1, 0, 1, 1, 1, 1, 0, 0, 0, 0])
-    b = np.array([1, 1, 1, 1, 1, 0, 0, 0, 1, 1])
+    evaluator = Evaluator_tensor(2, device='cpu')
+    a = torch.tensor(np.array([1, 0, 1, 1, 1, 1, 0, 0, 0, 0]))
+    b = torch.tensor(np.array([1, 1, 1, 1, 1, 0, 0, 0, 1, 1]))
     evaluator.add_batch(a, b)
 
     acc = evaluator.Pixel_Accuracy()
