@@ -513,7 +513,6 @@ class Tester(object):
             f.write('\nFW_IoU:   ' + str(fwiou0))
 
         test_log_path1 = os.path.join(self.args.output, 'test', 'log', self.model_name, "history1.txt")
-        # 直接复制
         if os.path.exists(test_log_path1):
             os.remove(test_log_path1)
         shutil.copy(hist_path, test_log_path1)

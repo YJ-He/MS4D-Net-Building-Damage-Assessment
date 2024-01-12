@@ -125,9 +125,9 @@ def main(config, args):
     begin_time = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
 
     if config.use_gpu:
-        model_student = model_student.cuda(device=args.gpu)  # 模型放在主设备
-        model_teacher1 = model_teacher1.cuda(device=args.gpu)  # 模型放在主设备
-        model_teacher2 = model_teacher2.cuda(device=args.gpu)  # 模型放在主设备
+        model_student = model_student.cuda(device=args.gpu)
+        model_teacher1 = model_teacher1.cuda(device=args.gpu)
+        model_teacher2 = model_teacher2.cuda(device=args.gpu)
 
     model_teacher = []
     model_teacher.append(model_teacher1)

@@ -3,7 +3,7 @@ import torch
 
 class Evaluator_tensor(object):
     """
-    分类精度评定
+    evaluation metrics for semantic segmentation
     """
 
     def __init__(self, num_class, device):
@@ -22,16 +22,14 @@ class Evaluator_tensor(object):
 
     def Pixel_Accuracy(self):
         """
-        计算并返回总体精度
-        :return: 总体精度
+        calculate pixel accuracy
         """
         Acc = torch.diag(self.confusion_matrix).sum() / (self.confusion_matrix.sum()+1e-8)
         return Acc
 
     def Pixel_Accuracy_Class(self):
         """
-        计算并返回基于每类的平均精度
-        :return: 基于每类的平均精度
+        Calculate per class pixel accuracy
         """
         Acc = torch.diag(self.confusion_matrix) / (self.confusion_matrix.sum(dim=1)+1e-8)
         self.accuracy_class = Acc
@@ -40,21 +38,18 @@ class Evaluator_tensor(object):
 
     def Mean_Intersection_over_Union(self):
         """
-        计算并返回基于每类的平均IOU
-        :return: 平均IOU
+        calculate mean intersection over union
         """
         MIoU = torch.diag(self.confusion_matrix) / (
                 torch.sum(self.confusion_matrix, dim=1) + torch.sum(self.confusion_matrix, dim=0) -
                 torch.diag(self.confusion_matrix)+1e-8)
-        # print(MIoU)
         self.iou = MIoU
         MIoU = torch.mean(MIoU)
         return MIoU
 
     def Frequency_Weighted_Intersection_over_Union(self):
         """
-        计算并返回加权后的IOU
-        :return:
+        calculate frequency weighted intersection over union
         """
         freq = torch.sum(self.confusion_matrix, dim=1) / (torch.sum(self.confusion_matrix)+1e-8)
         iu = torch.diag(self.confusion_matrix) / (
@@ -66,57 +61,37 @@ class Evaluator_tensor(object):
 
     def _generate_matrix(self, gt_image, pre_image):
         """
-        根据真值和预测值生成混淆矩阵
-        :param gt_image: 标签图像（tensor 格式）
-        :param pre_image: 预测图像（tensor 格式）
-        :return: 混淆矩阵（tensor 格式）
+        generate confusion matrix based on ground truth and prediction
         """
         mask = (gt_image >= 0) & (gt_image < self.num_class)
-        # map=mask.clone().cpu().detach().numpy()
-        # x1=np.bincount(map)
-        # if x1[0]!=0:
-        #     warn=1
-        # classNum = np.unique(map)
         label = self.num_class * gt_image[mask] + pre_image[mask]
         count = torch.bincount(label, minlength=self.num_class ** 2)
         confusion_matrix = count.reshape(self.num_class, self.num_class)
-
-        # cm=confusion_matrix(gt_image.clone().cpu().detach().numpy(),pre_image.clone().cpu().detach().numpy())
-        # sum1=torch.sum(confusion_matrix1)
-        # if sum1!=2097152:
-        #     warn = 1
         return confusion_matrix
 
     def add_batch(self, gt_image, pre_image):
         """
-        将每个批次的标签和预测图片的像素值进行累加计算
-        :param gt_image: 真值标签（tensor 格式）
-        :param pre_image: 预测图片（tensor 格式）
-        :return:
+        add a batch of image to the confusion matrix
         """
         assert gt_image.shape == pre_image.shape
         tem_cm = self.confusion_matrix.clone().detach()
-        # sum1=torch.sum(tem_cm)
         self.confusion_matrix = tem_cm + self._generate_matrix(gt_image, pre_image)
 
     def reset(self):
         """
-        将混淆矩阵值清零
-        :return:
+        reset confusion matrix to zero
         """
         self.confusion_matrix = torch.zeros((self.num_class,) * 2).long().to(self.device)
 
     def get_confusion_matrix(self):
         """
-        获取混淆矩阵
-        :return: 混淆矩阵
+        get confusion matrix
         """
         return self.confusion_matrix
 
     def get_base_value(self):
         """
-        获取每一类的TP，FP，FN，TN值
-        :return:每一类的TP，FP，FN，TN值
+        get TP, FP, FN, TN
         """
         self.FP = self.confusion_matrix.sum(dim=0) - torch.diag(self.confusion_matrix)
         self.FN = self.confusion_matrix.sum(dim=1) - torch.diag(self.confusion_matrix)
@@ -141,9 +116,7 @@ class Evaluator_tensor(object):
 
     def Kapaa_coefficient(self):
         """
-        计算kappa系数(根据定义)
-        需要基于混淆矩阵的计算结果
-        :return: kappa系数
+        calculate kappa coefficient
         """
         cm = self.confusion_matrix
         po = cm.diagonal().sum() / (cm.sum()+ 1e-8)
@@ -156,9 +129,7 @@ class Evaluator_tensor(object):
 
     def Kapaa_coefficient_sklearn(self):
         """
-        计算kappa系数（sklearn的算法）
-        需要基于混淆矩阵的计算结果
-        :return: kappa系数
+        calculate kappa coefficient (sklearn algorithm)
         """
         cm = self.confusion_matrix
         n_classes = cm.shape[0]

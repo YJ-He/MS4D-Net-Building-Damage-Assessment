@@ -30,7 +30,7 @@ def main(config, args):
                                             shared=False, fused_method='diff')
 
     if hasattr(model1, 'name'):
-        config.config.set("Directory", "model_name", model1.name+'_PDMT')
+        config.config.set("Directory", "model_name", model1.name+'_PSMT')
 
     test_dataset = MyDataset(config=config, args=args, subset='test')
 

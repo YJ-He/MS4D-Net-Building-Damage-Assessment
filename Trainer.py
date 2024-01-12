@@ -282,7 +282,7 @@ class Trainer(object):
         epochs = self.config.epochs
         assert self.start_epoch < epochs
 
-        # AEL参数设置
+        # AEL parameter init
         class_criterion = torch.rand(3, self.config.nb_classes).type(torch.float32)
 
         for epoch in range(self.start_epoch, epochs + 1):

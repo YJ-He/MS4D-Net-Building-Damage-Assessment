@@ -6,8 +6,6 @@ import configparser
     The information in the configuration always store the data in string format, it will have translation when reading.
     [DEFAULT]: the value in [DEFAULT] offer default_value to all sections, and it owns the highest priority. 
     get: getboolean() getint() getfloat()
-    get方法 提供一个更复杂的界面 保持向后兼容性 可以回退关键字仅提供回退值
-    fallback 回退值
 
     refer values in other sections
     interpolation method: configparser.BasicInterpolation()
